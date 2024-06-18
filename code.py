@@ -1,15 +1,21 @@
 import streamlit as st
 import json
-import re
 
 # Function to extract JSON-LD objects from script tag
 def extract_json_ld(script_str):
-    try:
-        # Use regex to find all JSON objects within the script tag
-        json_objects = re.findall(r'\{(?:[^{}]|(?R))*\}', script_str, re.DOTALL)
-        return json_objects
-    except ValueError:
-        return None
+    json_objects = []
+    balance = 0
+    start = 0
+    for i, char in enumerate(script_str):
+        if char == '{':
+            if balance == 0:
+                start = i
+            balance += 1
+        elif char == '}':
+            balance -= 1
+            if balance == 0:
+                json_objects.append(script_str[start:i + 1])
+    return json_objects
 
 # Function to prettify JSON-LD
 def prettify_json_ld(json_ld_str):
