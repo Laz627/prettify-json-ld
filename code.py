@@ -6,15 +6,24 @@ def extract_json_ld(script_str):
     json_objects = []
     balance = 0
     start = 0
+    in_string = False
+    escape = False
     for i, char in enumerate(script_str):
-        if char == '{':
-            if balance == 0:
-                start = i
-            balance += 1
-        elif char == '}':
-            balance -= 1
-            if balance == 0:
-                json_objects.append(script_str[start:i + 1])
+        if char == '"' and not escape:
+            in_string = not in_string
+        if char == '\\' and in_string:
+            escape = not escape
+        else:
+            escape = False
+        if not in_string:
+            if char == '{':
+                if balance == 0:
+                    start = i
+                balance += 1
+            elif char == '}':
+                balance -= 1
+                if balance == 0:
+                    json_objects.append(script_str[start:i + 1])
     return json_objects
 
 # Function to prettify JSON-LD
@@ -45,7 +54,7 @@ if st.button("Prettify"):
         for obj in json_ld_objects:
             prettified_json = prettify_json_ld(obj)
             prettified_jsons.append(prettified_json)
-        prettified_json_ld = '\n\n'.join(prettified_jsons)
+        prettified_json_ld = '[\n' + ',\n'.join(prettified_jsons) + '\n]'
     else:
         prettified_json_ld = "Invalid JSON-LD format. Please ensure you have pasted the correct code."
 
