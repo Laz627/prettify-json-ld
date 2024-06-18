@@ -1,13 +1,16 @@
 import streamlit as st
 import json
+import re
 
 # Function to extract JSON-LD from script tag
 def extract_json_ld(script_str):
     try:
-        start_index = script_str.find('{')
-        end_index = script_str.rfind('}') + 1
-        json_ld_str = script_str[start_index:end_index]
-        return json_ld_str
+        # Use regex to find all JSON objects within the script tag
+        json_objects = re.findall(r'\{.*?\}', script_str, re.DOTALL)
+        if json_objects:
+            return json_objects
+        else:
+            return None
     except ValueError:
         return None
 
@@ -33,9 +36,10 @@ json_ld_input = st.text_area("Enter your JSON-LD code here", height=300)
 # Button to prettify JSON-LD
 if st.button("Prettify"):
     # Extract JSON-LD from script tag
-    json_ld_str = extract_json_ld(json_ld_input.strip())
-    if json_ld_str:
-        prettified_json_ld = prettify_json_ld(json_ld_str)
+    json_ld_objects = extract_json_ld(json_ld_input.strip())
+    if json_ld_objects:
+        prettified_jsons = [prettify_json_ld(obj) for obj in json_ld_objects]
+        prettified_json_ld = '\n'.join(prettified_jsons)
     else:
         prettified_json_ld = "Invalid JSON-LD format. Please ensure you have pasted the correct code."
 
