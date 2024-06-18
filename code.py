@@ -1,19 +1,25 @@
 import streamlit as st
 import json
 
-# Function to split and extract JSON objects from the input string
+# Function to extract JSON-LD objects from script tag
 def extract_json_ld(script_str):
     try:
-        # Split the input string by looking for closing braces followed by an optional comma and then an opening brace
-        json_objects = script_str.split('}\n{')
+        # Split the input by newline and remove any empty entries
+        parts = [part.strip() for part in script_str.splitlines() if part.strip()]
         
-        # Fix the split parts to form valid JSON objects
-        json_objects = ['{' + obj + '}' if i > 0 else obj + '}' for i, obj in enumerate(json_objects)]
-        json_objects = [obj + '{' if i < len(json_objects) - 1 else obj for i, obj in enumerate(json_objects)]
+        # Combine parts to form valid JSON array
+        json_ld_str = "[" + ",".join(parts) + "]"
         
-        return json_objects
-    except ValueError:
-        return None
+        # Parse the combined JSON-LD string
+        parsed_json = json.loads(json_ld_str)
+        
+        # If it's a list, return each element as a separate JSON string
+        if isinstance(parsed_json, list):
+            return [json.dumps(element) for element in parsed_json]
+        else:
+            return [json_ld_str]
+    except json.JSONDecodeError as e:
+        return [f"Invalid JSON-LD format. Error: {e}"]
 
 # Function to prettify JSON-LD
 def prettify_json_ld(json_ld_str):
@@ -38,14 +44,11 @@ json_ld_input = st.text_area("Enter your JSON-LD code here", height=300)
 if st.button("Prettify"):
     # Extract JSON-LD from script tag
     json_ld_objects = extract_json_ld(json_ld_input.strip())
-    if json_ld_objects:
-        prettified_jsons = []
-        for obj in json_ld_objects:
-            prettified_json = prettify_json_ld(obj)
-            prettified_jsons.append(prettified_json)
-        prettified_json_ld = '\n\n'.join(prettified_jsons)
-    else:
-        prettified_json_ld = "Invalid JSON-LD format. Please ensure you have pasted the correct code."
+    prettified_jsons = []
+    for obj in json_ld_objects:
+        prettified_json = prettify_json_ld(obj)
+        prettified_jsons.append(prettified_json)
+    prettified_json_ld = '\n\n'.join(prettified_jsons)
 
     st.code(prettified_json_ld, language="json")
 
