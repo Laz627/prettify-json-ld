@@ -1,12 +1,16 @@
 import streamlit as st
 import json
-import re
 
-# Function to extract JSON-LD from script tag
+# Function to split and extract JSON objects from the input string
 def extract_json_ld(script_str):
     try:
-        # Use regex to find all JSON objects within the script tag
-        json_objects = re.findall(r'\{(?:[^{}]|(?R))*\}', script_str, re.DOTALL)
+        # Split the input string by looking for closing braces followed by an optional comma and then an opening brace
+        json_objects = script_str.split('}\n{')
+        
+        # Fix the split parts to form valid JSON objects
+        json_objects = ['{' + obj + '}' if i > 0 else obj + '}' for i, obj in enumerate(json_objects)]
+        json_objects = [obj + '{' if i < len(json_objects) - 1 else obj for i, obj in enumerate(json_objects)]
+        
         return json_objects
     except ValueError:
         return None
