@@ -1,18 +1,12 @@
 import streamlit as st
 import json
+import re
 
 # Function to extract JSON-LD objects from script tag
 def extract_json_ld(script_str):
     try:
-        # Find the position of the first and last curly braces
-        start_indices = [pos for pos, char in enumerate(script_str) if char == '{']
-        end_indices = [pos for pos, char in enumerate(script_str) if char == '}']
-        
-        # Extract each JSON object based on the identified positions
-        json_objects = []
-        for start, end in zip(start_indices, end_indices):
-            json_objects.append(script_str[start:end+1])
-        
+        # Use regex to find all JSON objects within the script tag
+        json_objects = re.findall(r'\{(?:[^{}]|(?R))*\}', script_str, re.DOTALL)
         return json_objects
     except ValueError:
         return None
