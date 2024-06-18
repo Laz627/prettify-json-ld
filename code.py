@@ -7,10 +7,10 @@ def prettify_json_ld(json_ld_str):
         # Parse JSON-LD string
         parsed_json = json.loads(json_ld_str)
         # Pretty-print JSON-LD
-        prettified_json = json.dumps(parsed_json, indent=4)
+        prettified_json = json.dumps(parsed_json, indent=4, ensure_ascii=False)
         return prettified_json
-    except json.JSONDecodeError:
-        return "Invalid JSON-LD format. Please check your input."
+    except json.JSONDecodeError as e:
+        return f"Invalid JSON-LD format. Error: {e}"
 
 # Streamlit app
 st.title("JSON-LD Prettifier")
@@ -26,7 +26,7 @@ if st.button("Prettify"):
     st.code(prettified_json_ld, language="json")
 
     # Display a copy button if the JSON-LD is valid
-    if prettified_json_ld != "Invalid JSON-LD format. Please check your input.":
+    if not prettified_json_ld.startswith("Invalid JSON-LD format."):
         st.download_button("Download Prettified JSON-LD", prettified_json_ld, file_name="prettified_json_ld.json", mime="application/json")
 
 st.write("\n\nCreated by: Brandon Lazovic")
