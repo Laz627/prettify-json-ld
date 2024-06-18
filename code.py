@@ -6,7 +6,7 @@ import re
 def extract_json_ld(script_str):
     try:
         # Use regex to find all JSON objects within the script tag
-        json_objects = re.findall(r'\{.*?\}', script_str, re.DOTALL)
+        json_objects = re.findall(r'\{(?:[^{}]|(?R))*\}', script_str, re.DOTALL)
         return json_objects
     except ValueError:
         return None
@@ -38,10 +38,7 @@ if st.button("Prettify"):
         prettified_jsons = []
         for obj in json_ld_objects:
             prettified_json = prettify_json_ld(obj)
-            if "Invalid JSON-LD format" in prettified_json:
-                prettified_jsons.append(prettified_json)
-            else:
-                prettified_jsons.append(prettified_json)
+            prettified_jsons.append(prettified_json)
         prettified_json_ld = '\n\n'.join(prettified_jsons)
     else:
         prettified_json_ld = "Invalid JSON-LD format. Please ensure you have pasted the correct code."
