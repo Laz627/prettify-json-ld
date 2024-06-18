@@ -39,7 +39,7 @@ if st.button("Prettify"):
     json_ld_objects = extract_json_ld(json_ld_input.strip())
     if json_ld_objects:
         prettified_jsons = [prettify_json_ld(obj) for obj in json_ld_objects]
-        prettified_json_ld = '\n'.join(prettified_jsons)
+        prettified_json_ld = '\n\n'.join(prettified_jsons)
     else:
         prettified_json_ld = "Invalid JSON-LD format. Please ensure you have pasted the correct code."
 
